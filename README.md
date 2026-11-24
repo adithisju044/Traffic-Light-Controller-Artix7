@@ -1,126 +1,88 @@
-# Traffic Light Controller using Verilog HDL and Artix-7 FPGA
+# Four-Way Traffic Light Controller — Basys 3 FPGA
 
-A two-road traffic light controller designed using Verilog HDL and a finite-state machine (FSM). The RTL is intended for synthesis on an AMD/Xilinx Artix-7 FPGA using Vivado Design Suite.
+A parameterized Verilog finite-state-machine (FSM) traffic-light controller for the **Digilent Basys 3 (Artix-7 XC7A35T-1CPG236C)**, targeting **AMD Vivado 2025.2**.
 
-## Project overview
+## Overview
 
-The controller manages traffic flow between two directions:
+North and South share one signal group; East and West share the opposing group. The controller runs six phases:
 
-- North-South (NS)
-- East-West (EW)
+1. North/South green; East/West red
+2. North/South yellow; East/West red
+3. All-red clearance
+4. East/West green; North/South red
+5. East/West yellow; North/South red
+6. All-red clearance, then repeat
 
-It uses a six-phase finite-state machine, a programmable phase timer, and six active-high signal outputs.
-
-## Features
-
-- Six-phase FSM architecture
-- Independent red, yellow, and green outputs for both roads
-- All-red clearance interval between road changes
-- Parameterized clock frequency and signal durations
-- Active-high synchronous reset
-- Verilog testbench with output and safety checks
-- Waveform dump support for simulation
-
-## Traffic signal sequence
-
-| Phase | North-South | East-West |
-|---|---|---|
-| 1 | Green | Red |
-| 2 | Yellow | Red |
-| 3 | Red | Red |
-| 4 | Red | Green |
-| 5 | Red | Yellow |
-| 6 | Red | Red |
-
-The sequence repeats continuously.
+A synchronous active-high reset returns the controller to phase 1.
 
 ## Default timing
 
-The default RTL parameters assume a 100 MHz clock.
-
-| Parameter | Default |
+| Interval | Duration |
 |---|---:|
-| Clock frequency | 100 MHz |
-| Green duration | 10 seconds |
-| Yellow duration | 3 seconds |
+| Green | 10 seconds |
+| Yellow | 3 seconds |
 | All-red clearance | 1 second |
+| Clock | 100 MHz |
 
-The parameters `CLK_FREQ_HZ`, `GREEN_SEC`, `YELLOW_SEC`, and `CLEAR_SEC` can be changed when instantiating the module.
+Timing parameters are configurable in the RTL.
 
-## Repository structure
+## Repository layout
 
-```text
+```
 Traffic-Light-Controller-Artix7/
-├── rtl/
-│   └── traffic_light_top.v
-├── sim/
-│   └── tb_traffic_light_top.v
-├── constraints/
-│   └── README.md
-├── docs/
-│   └── EXPECTED_SEQUENCE.txt
+├── rtl/traffic_light_top.v
+├── sim/tb_traffic_light_top.v
+├── constraints/basys3_traffic_light.xdc
+├── docs/architecture.md
+├── docs/expected_sequence.txt
+├── vivado/setup.md
+├── LICENSE
 ├── .gitignore
 └── README.md
 ```
 
-## Top-level I/O
+## Basys 3 I/O
 
-| Signal | Direction | Description |
-|---|---|---|
-| clk | Input | FPGA system clock |
-| reset | Input | Active-high synchronous reset |
-| ns_red | Output | North-South red signal |
-| ns_yellow | Output | North-South yellow signal |
-| ns_green | Output | North-South green signal |
-| ew_red | Output | East-West red signal |
-| ew_yellow | Output | East-West yellow signal |
-| ew_green | Output | East-West green signal |
+- Clock: W5, 100 MHz
+- Reset: BTNC, U18, active-high
+- Six output indicators: LED0–LED5
+
+The XDC targets the Digilent Basys 3. Confirm the exact board model and revision before programming hardware.
 
 ## Simulation
 
-The testbench instantiates the controller with shortened timing parameters so the complete sequence can be examined quickly.
-
-It checks the expected output patterns for each phase and verifies that both directions are never green simultaneously.
-
-The testbench writes a waveform file named `traffic_light_waveform.vcd` when run in a compatible Verilog simulator.
-
-Example with Icarus Verilog:
+With Icarus Verilog:
 
 ```bash
 iverilog -g2012 -o traffic_tb rtl/traffic_light_top.v sim/tb_traffic_light_top.v
 vvp traffic_tb
 ```
 
-Open the generated waveform with GTKWave:
+Expected final message: `PASS: all six phases and safety assertions passed.`
 
-```bash
-gtkwave traffic_light_waveform.vcd
-```
+The testbench emits `traffic_light_waveform.vcd`, which can be opened with GTKWave.
 
-## Vivado implementation
+## Vivado 2025.2
 
-1. Create a new RTL project in Vivado.
-2. Select the exact Artix-7 FPGA part used by the target board.
+1. Create an RTL project.
+2. Select the Basys 3 board, or device `xc7a35tcpg236-1`.
 3. Add `rtl/traffic_light_top.v` as a design source.
 4. Add `sim/tb_traffic_light_top.v` as a simulation source.
-5. Add board-specific timing and pin constraints.
-6. Set `traffic_light_top` as the top module.
-7. Run behavioral simulation, synthesis, and implementation.
-8. Generate the bitstream and program the FPGA if hardware is available.
+5. Add `constraints/basys3_traffic_light.xdc` as a constraints source.
+6. Set `traffic_light_top` as design top and `tb_traffic_light_top` as simulation top.
+7. Run behavioral simulation, synthesis, implementation, and Generate Bitstream.
+8. Use Hardware Manager to program the Basys 3.
 
-**Board constraints:** Pin assignments are intentionally not guessed. Use the official master XDC for the exact FPGA board before attempting hardware implementation.
+See [Vivado setup](vivado/setup.md).
 
-## Tools and technologies
+## Hardware note
 
-- Verilog HDL
-- AMD/Xilinx Vivado Design Suite (2025.2 target workflow)
-- Artix-7 FPGA family
-- Finite State Machine (FSM) design
+The six on-board LEDs are indicators, not powered traffic lamps. Use current-limiting resistors and suitable driver circuitry for external lamps. Never connect high-current loads directly to FPGA I/O pins.
 
-## Project status
+## Verification status
 
-Source code and testbench are included. Hardware implementation and board-level testing should be performed on the intended Artix-7 development board.
+RTL and testbench are provided. Vivado synthesis, implementation, bitstream generation, and physical board testing have not been run as part of this repository update; perform them locally before claiming hardware validation.
 
 ## License
 
-No license has been specified for this repository.
+MIT. See [LICENSE](LICENSE).
