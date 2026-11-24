@@ -15,10 +15,7 @@
 *.ip_user_files/
 *.sim/
 xsim.dir/
-.cache/
 .Xil/
-
-# Editor and OS files
 .vscode/
 .idea/
 .DS_Store
