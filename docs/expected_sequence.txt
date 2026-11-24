@@ -1,0 +1,11 @@
+TRAFFIC LIGHT CONTROLLER - EXPECTED SEQUENCE
+
+1. North/South GREEN, East/West RED  (GREEN_SEC)
+2. North/South YELLOW, East/West RED (YELLOW_SEC)
+3. North/South RED, East/West RED    (CLEAR_SEC)
+4. North/South RED, East/West GREEN  (GREEN_SEC)
+5. North/South RED, East/West YELLOW (YELLOW_SEC)
+6. North/South RED, East/West RED    (CLEAR_SEC)
+7. Repeat at phase 1.
+
+Defaults: 100 MHz clock, 10 s green, 3 s yellow, 1 s all-red clearance.
