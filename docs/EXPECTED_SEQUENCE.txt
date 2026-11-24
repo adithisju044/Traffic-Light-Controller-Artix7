@@ -1,0 +1,31 @@
+TRAFFIC LIGHT CONTROLLER - EXPECTED SEQUENCE
+
+The controller uses six FSM phases and repeats continuously.
+
+Phase 1: North-South GREEN, East-West RED
+         Duration: GREEN_SEC
+
+Phase 2: North-South YELLOW, East-West RED
+         Duration: YELLOW_SEC
+
+Phase 3: North-South RED, East-West RED
+         Duration: CLEAR_SEC
+
+Phase 4: North-South RED, East-West GREEN
+         Duration: GREEN_SEC
+
+Phase 5: North-South RED, East-West YELLOW
+         Duration: YELLOW_SEC
+
+Phase 6: North-South RED, East-West RED
+         Duration: CLEAR_SEC
+
+After Phase 6, the controller returns to Phase 1.
+
+Default parameters:
+  Clock frequency : 100 MHz
+  Green duration  : 10 seconds
+  Yellow duration : 3 seconds
+  Clearance       : 1 second
+
+The testbench uses shortened parameters for faster simulation.
